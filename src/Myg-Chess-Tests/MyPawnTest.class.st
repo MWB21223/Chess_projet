@@ -42,6 +42,63 @@ MyPawnTest >> testPawnBlockedCannotMove [ [
 ]
 
 { #category : 'tests' }
+MyPawnTest >> testPawnCanCaptureDiagonallyLeft [ [
+	| game whitePawn enemyPawn targetSquare startSquare |
+	game := MyChessGame freshGame.
+	
+	"Trouver un pion blanc sur e2"
+	whitePawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ] .
+	"Trouver un pion noir ennemi"
+	enemyPawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'd7' ] ] .
+	
+	startSquare := whitePawn square.
+	
+	"Déplacer le pion blanc en e4"
+	game move: whitePawn to: whitePawn square up up.
+	game play.
+	
+	"Déplacer le pion ennemi en d5 (diagonale avant-gauche du pion blanc)"
+	game move: enemyPawn to: enemyPawn square down down.
+	game play.
+	
+	targetSquare := enemyPawn square.
+	
+	"Capturer le pion ennemi en diagonale"
+	game move: whitePawn to: targetSquare.
+	
+	"Vérifications"
+	self assert: whitePawn square equals: targetSquare.
+	self deny: startSquare hasPiece.
+	self assert: enemyPawn square equals: targetSquare.
+]
+]
+
+{ #category : 'tests' }
+MyPawnTest >> testPawnCanCaptureDiagonallyRight [ [
+	" le pion blanc peut capturer en diagonale avant-droite"
+	| game whitePawn enemyPawn targetSquare startSquare |
+	game := MyChessGame freshGame.
+	
+	whitePawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ] .
+	enemyPawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'f7' ] ] .
+	
+	startSquare := whitePawn square.
+	
+	game move: whitePawn to: whitePawn square up up.
+	game play.
+	game move: enemyPawn to: enemyPawn square down down.
+	game play.
+	
+	targetSquare := enemyPawn square.
+	
+	game move: whitePawn to: targetSquare.
+	
+	self assert: whitePawn square equals: targetSquare.
+	self deny: startSquare hasPiece.
+]
+]
+
+{ #category : 'tests' }
 MyPawnTest >> testPawnCanMakeInitialDoubleMove [ [
 	| game pawn |
 	game := MyChessGame freshGame.
