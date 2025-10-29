@@ -31,14 +31,15 @@ MyPawn >> diagonalCaptureSquares [
 
 { #category : 'as yet unclassified' }
 MyPawn >> enPassantTargetSquares [
-	"Retourne la/les case(s) de prise en passant disponibles depuis la position actuelle.
-	Le jeu (MyChessGame) doit exposer enPassantTargetSquare (une case ou nil)."
-	| ep diagLeft diagRight targets |
+	| targets ep diagLeft diagRight |
 	targets := OrderedCollection new.
-	ep := self board game ifNotNil: #enPassantTargetSquare.
+
+	self board ifNil: [ ^ targets ].
+	self board game ifNil: [ ^ targets ].
+
+	ep := self board game enPassantTargetSquare.
 	ep isNil ifTrue: [ ^ targets ].
 
-	"Les diagonales d’attaque du pion"
 	diagLeft := self isWhite
 		ifTrue: [ square up ifNotNil: #left ]
 		ifFalse: [ square down ifNotNil: #left ].
@@ -46,7 +47,6 @@ MyPawn >> enPassantTargetSquares [
 		ifTrue: [ square up ifNotNil: #right ]
 		ifFalse: [ square down ifNotNil: #right ].
 
-	"En passant: on peut aller sur la case EP si elle est exactement l’une des diagonales"
 	diagLeft = ep ifTrue: [ targets add: ep ].
 	diagRight = ep ifTrue: [ targets add: ep ].
 
@@ -82,6 +82,23 @@ MyPawn >> forwardMoveSquares [
 MyPawn >> id [
 
 	^ 'P'
+]
+
+{ #category : 'path commands' }
+MyPawn >> moveTo: aSquare [
+	| game ep capturedSquareBehind dir |
+	game := self board game.
+	(self legalTargetSquares includes: aSquare) ifFalse: [ ^ self ].
+
+	"Prise en passant: destination vide et égale à EP"
+	ep := game ifNotNil: [ game enPassantTargetSquare ].
+	(ep notNil and: [ aSquare = ep and: [ aSquare hasPiece not ] ]) ifTrue: [
+		dir := self isWhite ifTrue: [ #down ] ifFalse: [ #up ].
+		capturedSquareBehind := aSquare perform: dir.
+		capturedSquareBehind ifNotNil: [
+			capturedSquareBehind hasPiece ifTrue: [ capturedSquareBehind emptyContents ] ] ].
+
+	super moveTo: aSquare
 ]
 
 { #category : 'rendering' }
