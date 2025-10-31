@@ -134,3 +134,32 @@ MyPawnTest >> testPawnCannotJumpOverObstacleForDoubleMove [ [
 	self assert: pawn square name equals: 'b3'.
 ]
 ]
+
+{ #category : 'tests' }
+MyPawnTest >> testPawnCannotCaptureDiagonallyOnEmptySquare [ [
+	| game pawn initialSquare target |
+	game := MyChessGame freshGame.
+	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
+	
+	game move: pawn to: pawn square up up.
+	initialSquare := pawn square.
+	target := (initialSquare up) ifNotNil: [ :sq | sq right ].
+	
+	game move: pawn to: target.
+	self assert: pawn square equals: initialSquare.
+]
+]
+
+{ #category : 'tests' }
+MyPawnTest >> testPawnCannotDoubleMoveFromNonInitialRank [ [
+	| game pawn start |
+	game := MyChessGame freshGame.
+	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
+
+	game move: pawn to: pawn square up.
+	start := pawn square.
+	
+	game move: pawn to: (start up up).
+	self assert: pawn square equals: start.
+]
+]
