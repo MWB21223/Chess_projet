@@ -6,7 +6,7 @@ Class {
 }
 
 { #category : 'tests' }
-MyPawnTest >> testPawnAdvancesOneSquare [ [
+MyPawnTest >> testPawnAdvancesOneSquare [ 
 	" Avancée simple d'une case vers l'avant"
 	| game pawn |
 	game := MyChessGame freshGame.
@@ -16,11 +16,11 @@ MyPawnTest >> testPawnAdvancesOneSquare [ [
 	
 	self assert: pawn square name equals: 'e3'.
 	self deny: (game board at: 'e2') hasPiece.
-]
+
 ]
 
 { #category : 'tests' }
-MyPawnTest >> testPawnBlockedCannotMove [ [
+MyPawnTest >> testPawnBlockedCannotMove [ 
 	| game whitePawn blackPawn  initialSquare |
 	game := MyChessGame freshGame.
 	whitePawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
@@ -38,11 +38,11 @@ MyPawnTest >> testPawnBlockedCannotMove [ [
 	game move: whitePawn to: whitePawn square up.
 	
 	self assert: whitePawn square equals: initialSquare.
-]
+
 ]
 
 { #category : 'tests' }
-MyPawnTest >> testPawnCanCaptureDiagonallyLeft [ [
+MyPawnTest >> testPawnCanCaptureDiagonallyLeft [ 
 	| game whitePawn enemyPawn targetSquare startSquare |
 	game := MyChessGame freshGame.
 	
@@ -70,11 +70,11 @@ MyPawnTest >> testPawnCanCaptureDiagonallyLeft [ [
 	self assert: whitePawn square equals: targetSquare.
 	self deny: startSquare hasPiece.
 	self assert: enemyPawn square equals: targetSquare.
-]
+
 ]
 
 { #category : 'tests' }
-MyPawnTest >> testPawnCanCaptureDiagonallyRight [ [
+MyPawnTest >> testPawnCanCaptureDiagonallyRight [ 
 	" le pion blanc peut capturer en diagonale avant-droite"
 	| game whitePawn enemyPawn targetSquare startSquare |
 	game := MyChessGame freshGame.
@@ -95,11 +95,11 @@ MyPawnTest >> testPawnCanCaptureDiagonallyRight [ [
 	
 	self assert: whitePawn square equals: targetSquare.
 	self deny: startSquare hasPiece.
-]
+
 ]
 
 { #category : 'tests' }
-MyPawnTest >> testPawnCanMakeInitialDoubleMove [ [
+MyPawnTest >> testPawnCanMakeInitialDoubleMove [ 
 	| game pawn |
 	game := MyChessGame freshGame.
 	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'a2' ] ].
@@ -108,11 +108,40 @@ MyPawnTest >> testPawnCanMakeInitialDoubleMove [ [
 	
 	self assert: pawn square name equals: 'a4'.
 	self deny: (game board at: 'a2') hasPiece.
-]
+
 ]
 
 { #category : 'tests' }
-MyPawnTest >> testPawnCannotJumpOverObstacleForDoubleMove [ [
+MyPawnTest >> testPawnCannotCaptureDiagonallyOnEmptySquare [ 
+	| game pawn initialSquare target |
+	game := MyChessGame freshGame.
+	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
+	
+	game move: pawn to: pawn square up up.
+	initialSquare := pawn square.
+	target := (initialSquare up) ifNotNil: [ :sq | sq right ].
+	
+	game move: pawn to: target.
+	self assert: pawn square equals: initialSquare.
+
+]
+
+{ #category : 'tests' }
+MyPawnTest >> testPawnCannotDoubleMoveFromNonInitialRank [ 
+	| game pawn start |
+	game := MyChessGame freshGame.
+	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
+
+	game move: pawn to: pawn square up.
+	start := pawn square.
+	
+	game move: pawn to: (start up up).
+	self assert: pawn square equals: start.
+
+]
+
+{ #category : 'tests' }
+MyPawnTest >> testPawnCannotJumpOverObstacleForDoubleMove [ 
 	"le pion ne peut pas sauter par-dessus une pièce pour le double mouvement"
 
 	| game pawn obstacle  initialSquare |
@@ -132,34 +161,5 @@ MyPawnTest >> testPawnCannotJumpOverObstacleForDoubleMove [ [
 	"Le double mouvement doit échouer, seul b3 doit être accessible"
 	self deny: pawn square name equals: 'b4'.
 	self assert: pawn square name equals: 'b3'.
-]
-]
 
-{ #category : 'tests' }
-MyPawnTest >> testPawnCannotCaptureDiagonallyOnEmptySquare [ [
-	| game pawn initialSquare target |
-	game := MyChessGame freshGame.
-	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
-	
-	game move: pawn to: pawn square up up.
-	initialSquare := pawn square.
-	target := (initialSquare up) ifNotNil: [ :sq | sq right ].
-	
-	game move: pawn to: target.
-	self assert: pawn square equals: initialSquare.
-]
-]
-
-{ #category : 'tests' }
-MyPawnTest >> testPawnCannotDoubleMoveFromNonInitialRank [ [
-	| game pawn start |
-	game := MyChessGame freshGame.
-	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
-
-	game move: pawn to: pawn square up.
-	start := pawn square.
-	
-	game move: pawn to: (start up up).
-	self assert: pawn square equals: start.
-]
 ]
