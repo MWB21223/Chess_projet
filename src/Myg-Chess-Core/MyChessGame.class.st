@@ -172,6 +172,17 @@ MyChessGame >> move: piece to: targetSquare [
 ]
 
 { #category : 'accessing' }
+MyChessGame >> board [
+	^ board
+]
+
+{ #category : 'accessing' }
+MyChessGame >> at: aCoordinate [
+	"Délègue l'accès aux cases du plateau"
+	^ board at: aCoordinate
+]
+
+{ #category : 'accessing' }
 MyChessGame >> pieces [
 
 	^ board pieces
