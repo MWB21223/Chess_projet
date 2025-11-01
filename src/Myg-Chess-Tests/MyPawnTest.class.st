@@ -144,22 +144,30 @@ MyPawnTest >> testPawnCannotDoubleMoveFromNonInitialRank [
 MyPawnTest >> testPawnCannotJumpOverObstacleForDoubleMove [ 
 	"le pion ne peut pas sauter par-dessus une pièce pour le double mouvement"
 
-	| game pawn obstacle  initialSquare |
+	| game pawn obstacle initialSquare legalMoves |
 	game := MyChessGame freshGame.
 	pawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'b2' ] ] .
 	obstacle := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'b7' ] ].
 	
-	"Déplacer l'obstacle sur b3 pour bloquer le chemin"
+	"Déplacer l'obstacle sur b4 pour bloquer le double mouvement (mais pas b3)"
 	game move: obstacle to: obstacle square down down.
+	game play.
 	game move: obstacle to: obstacle square down.
-	game move: obstacle to: obstacle square down.
+	game play.
 	
-	"Le pion sur b2 ne peut pas faire de double mouvement mais peut avancer d'une cas"
+	"Vérifier que le pion sur b2 ne peut pas faire de double mouvement vers b4"
+	legalMoves := pawn legalTargetSquares.
+	self deny: (legalMoves anySatisfy: [ :sq | sq name = 'b4' ]).
+	
+	"Vérifier que b3 est accessible (une case devant, vide)"
+	self assert: (legalMoves anySatisfy: [ :sq | sq name = 'b3' ]).
+	
+	"Le pion peut avancer d'une case vers b3"
 	initialSquare := pawn square.
-	game move: pawn to: (pawn square up up).
+	game move: pawn to: (pawn square up).
 	
-	"Le double mouvement doit échouer, seul b3 doit être accessible"
-	self deny: pawn square name equals: 'b4'.
+	"Le pion doit être sur b3"
 	self assert: pawn square name equals: 'b3'.
+	self deny: initialSquare hasPiece.
 
 ]
