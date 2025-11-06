@@ -20,6 +20,50 @@ MyPawnTest >> testPawnAdvancesOneSquare [
 ]
 
 { #category : 'tests' }
+MyPawnTest >> testEnPassantWhiteCapturesAfterBlackDoubleStep [ 
+
+	| game whitePawn blackPawn |
+	game := MyChessGame freshGame.
+
+	whitePawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
+	game move: whitePawn to: whitePawn square up up. "e2 -> e4"
+	game move: whitePawn to: whitePawn square up.     "e4 -> e5"
+
+	blackPawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'd7' ] ].
+	game move: blackPawn to: blackPawn square down down.
+
+	game move: whitePawn to: (game board at: 'd6').
+
+	self assert: whitePawn square name equals: 'd6'.
+	self deny: (game board at: 'd5') hasPiece.
+]
+
+{ #category : 'tests' }
+MyPawnTest >> testEnPassantExpiresAfterOtherMove [ 
+
+	| game whitePawn blackPawn someWhiteKnight initialWhitePos |
+	game := MyChessGame freshGame.
+
+	
+	whitePawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'e2' ] ].
+	game move: whitePawn to: whitePawn square up up.
+	game move: whitePawn to: whitePawn square up.
+	initialWhitePos := whitePawn square.
+
+	blackPawn := game pieces detect: [ :p | p class = MyPawn and: [ p square name = 'd7' ] ].
+	game move: blackPawn to: blackPawn square down down.
+
+	
+	someWhiteKnight := game pieces detect: [ :p | p notNil and: [ p class = MyKnight and: [ p color = Color white ] ] ].
+	game move: someWhiteKnight to: (game board at: 'c3').
+
+
+	game move: whitePawn to: (game board at: 'd6').
+	self assert: whitePawn square equals: initialWhitePos.
+	self assert: (game board at: 'd5') hasPiece.
+]
+
+{ #category : 'tests' }
 MyPawnTest >> testPawnBlockedCannotMove [ 
 	| game whitePawn blackPawn  initialSquare |
 	game := MyChessGame freshGame.
